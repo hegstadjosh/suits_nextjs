@@ -49,14 +49,14 @@ export function StatusPanel() {
           }),
         });
         if (res.ok) {
-          const data = await res.json();
-          setTelemetry(data.telemetry as Telemetry);
-          setAlerts((data.alerts as ActiveAlert[]) ?? []);
+          const data = (await res.json()) as { telemetry?: Telemetry; alerts?: ActiveAlert[] };
+          if (data.telemetry) setTelemetry(data.telemetry);
+          setAlerts(data.alerts ?? []);
         }
       } catch {}
-      if (!stop) setTimeout(tick, 1500);
+      if (!stop) setTimeout(() => { void tick(); }, 1500);
     }
-    tick();
+    void tick();
     return () => {
       stop = true;
     };
@@ -69,22 +69,19 @@ export function StatusPanel() {
       try {
         const res = await fetch("/api/timers");
         if (res.ok) {
-          const data = await res.json();
-          setTimers((data.timers as Timer[]) ?? []);
+          const data = (await res.json()) as { timers?: Timer[] };
+          setTimers(data.timers ?? []);
         }
       } catch {}
-      if (!stop) setTimeout(tick, 1000);
+      if (!stop) setTimeout(() => { void tick(); }, 1000);
     }
-    tick();
+    void tick();
     return () => {
       stop = true;
     };
   }, []);
 
-  const hasWarning = useMemo(
-    () => alerts.some((a) => a.level === "warning"),
-    [alerts],
-  );
+  // derive warning presence if needed in future
 
   return (
     <div className="flex h-full flex-col gap-4 p-4">
@@ -174,4 +171,3 @@ function TimerRow({ t }: { t: Timer }) {
     </div>
   );
 }
-

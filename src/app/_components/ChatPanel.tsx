@@ -24,9 +24,9 @@ export function ChatPanel() {
       body: JSON.stringify({ messages: [...messages, { role: "user", content: text }] }),
     });
     if (!res.ok) return;
-    const data = await res.json();
-    const assistantMsgs = (data.messages as Message[]) ?? [];
-    const toolCalls = (data.toolCalls as ToolCall[]) ?? [];
+    const data = (await res.json()) as { messages?: Message[]; toolCalls?: ToolCall[] };
+    const assistantMsgs = data.messages ?? [];
+    const toolCalls = data.toolCalls ?? [];
     setMessages((m) => [...m, ...assistantMsgs]);
     setTools(toolCalls);
   }
@@ -52,7 +52,7 @@ export function ChatPanel() {
       <div className="text-xl font-semibold">Chat</div>
       <div className="flex-1 overflow-auto rounded-md border border-neutral-700 bg-neutral-950/60 p-3">
         {messages.length === 0 ? (
-          <div className="text-sm text-neutral-400">Try: "Status check"</div>
+          <div className="text-sm text-neutral-400">Try: &quot;Status check&quot;</div>
         ) : (
           <ul className="space-y-2 text-sm">
             {messages.map((m, i) => (
