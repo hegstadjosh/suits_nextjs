@@ -11,18 +11,23 @@ import {
 export function getEvTools() {
   return {
     get_telemetry: tool({
-      description: "Return latest suit telemetry values.",
+      description:
+        "Return latest suit telemetry values. Fields allowed: o2_primary_pct, o2_secondary_pct, suit_pressure_kpa, heart_bpm, co2_ppm, battery_pct. If no fields are provided, return all.",
       inputSchema: z.object({
-        fields: z.array(z.string()).optional(),
+        fields: z.array(z.enum([
+          "o2_primary_pct",
+          "o2_secondary_pct",
+          "suit_pressure_kpa",
+          "heart_bpm",
+          "co2_ppm",
+          "battery_pct",
+        ])).optional(),
       }),
-      execute: async (input: any) => {
-        const fields = (input?.fields as string[] | undefined) ?? undefined;
+      execute: async (_input: any) => {
+        // Always return full telemetry plus alerts for reliability
         const t = stepTelemetry();
-        const telemetry = fields && fields.length > 0
-          ? Object.fromEntries(fields.map((f: string) => [f, (t as any)[f]]))
-          : t;
         const alerts = evaluateAlerts(t);
-        return { telemetry, alerts };
+        return { telemetry: t, alerts };
       },
     }),
 

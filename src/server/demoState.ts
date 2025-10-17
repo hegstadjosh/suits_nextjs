@@ -23,7 +23,7 @@ function jitter(x: number, d: number, min: number, max: number) {
 }
 
 // Seeded starting state
-let telemetryState: Telemetry = {
+const initialTelemetry: Telemetry = {
   o2_primary_pct: 52,
   o2_secondary_pct: 100,
   suit_pressure_kpa: 29.8,
@@ -31,6 +31,7 @@ let telemetryState: Telemetry = {
   co2_ppm: 4500,
   battery_pct: 28,
 };
+let telemetryState: Telemetry = { ...initialTelemetry };
 
 // For demo trending
 let demoTick = 0;
@@ -245,3 +246,17 @@ export function listTimers(): Timer[] {
   return Array.from(timers.values()).sort((a, b) => a.endsAt - b.endsAt);
 }
 
+export function resetDemoState() {
+  // Reset telemetry
+  telemetryState = { ...initialTelemetry };
+  demoTick = 0;
+  // Reset alerts debounce and acknowledgements
+  consecutive.O2_LOW = 0;
+  consecutive.P_LOW = 0;
+  consecutive.CO2_HIGH = 0;
+  consecutive.BATT_LOW = 0;
+  consecutive.HR_HIGH = 0;
+  resetAcknowledgements();
+  // Clear timers
+  timers.clear();
+}
